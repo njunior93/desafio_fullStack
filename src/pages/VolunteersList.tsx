@@ -1,0 +1,186 @@
+import Paper from '@mui/material/Paper';
+import { Button, FormControl, InputAdornment, InputLabel, MenuItem, Select, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+
+const VolunteersList = () => {
+  const navigate = useNavigate();
+
+  const volunteers = [
+  {
+    id: 1,
+    email: "ana.silva@email.com",
+    telefone: "(11) 98765-4321",
+    cargo: "Cozinha",
+    disponibilidade: "Manhã",
+    status: "Inativo",
+    data: "14/01/2024",
+  },
+  {
+    id: 2,
+    email: "carlos.santos@email.com",
+    telefone: "(11) 97654-3210",
+    cargo: "Atendimento",
+    disponibilidade: "Tarde",
+    status: "Ativo",
+    data: "19/01/2024",
+  },
+  {
+    id: 3,
+    email: "maria.oliveira@email.com",
+    telefone: "(11) 96543-2109",
+    cargo: "Logística",
+    disponibilidade: "Noite",
+    status: "Inativo",
+    data: "09/01/2024",
+  },
+  {
+    id: 4,
+    email: "joao.pereira@email.com",
+    telefone: "(11) 95432-1098",
+    cargo: "Administrativo",
+    disponibilidade: "Fim de Semana",
+    status: "Ativo",
+    data: "31/01/2024",
+  },
+  {
+    id: 5,
+    email: "fernanda.costa@email.com",
+    telefone: "(11) 94321-0987",
+    cargo: "Cozinha",
+    disponibilidade: "Manhã",
+    status: "Ativo",
+    data: "04/02/2024",
+  },
+];
+
+ const createData = (id: number, email: string, telefone: string, cargo: string, disponibilidade: string, status: string, data: string) => {
+    return { id, email, telefone, cargo, disponibilidade, status, data };
+ };
+
+ const rows = [
+  createData(1, "email.com", "(11) 98765-4321", "Cozinha", "Manhã", "Inativo", "14/01/2024"),
+  createData(2, "email.com", "(11) 97654-3210", "Atendimento", "Tarde", "Ativo", "19/01/2024"),
+  createData(3, "email.com", "(11) 96543-2109", "Logística", "Noite", "Inativo", "09/01/2024"),
+  createData(4, "email.com", "(11) 95432-1098", "Administrativo", "Fim de Semana", "Ativo", "31/01/2024"),
+  createData(5, "email.com", "(11) 94321-0987", "Cozinha", "Manhã", "Ativo", "04/02/2024"),
+ ]
+
+
+  return (
+    <div className='min-h-screen w-full flex justify-center items-center'>
+      <div className='w-full max-w-4xl flex flex-col gap-8 m-4'>
+        <div className='w-full flex flex-row justify-between items-center'>
+          <div className='flex flex-col items-start gap-1'>
+              <Typography variant='h5'color='text.primary' fontWeight={700}>Gerenciamento de Voluntários</Typography>
+              <Typography variant='body2'color='text.secondary'>Gerencie cadastros, visualize informações e acompanhe voluntários</Typography>
+          </div>
+
+          <Button
+            variant="contained"
+            onClick={() => navigate("/create-volunteer")}
+            sx={{
+              borderRadius: 3,
+              textTransform: "none",
+              px: 3,
+              py: 1.2,
+            }}
+          >
+            Novo Voluntário
+          </Button>
+        </div>
+
+        <div className='flex flex-col gap-6'>
+          <Paper elevation={1} className='w-full border border-gray-200'>
+            <Stack direction="row" spacing={2} sx={{ p: 2 }}>
+              <TextField
+                  fullWidth
+                  placeholder="Buscar por nome ou email"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <FormControl fullWidth>
+                  <InputLabel>Status</InputLabel>
+
+                  <Select label="Status" defaultValue="todos">
+                    <MenuItem value="todos">Todos os status</MenuItem>
+                    <MenuItem value="ativo">Ativo</MenuItem>
+                    <MenuItem value="inativo">Inativo</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <FormControl fullWidth>
+                  <InputLabel>Cargo</InputLabel>
+
+                  <Select label="Cargo" defaultValue="todos">
+                    <MenuItem value="todos">Todos os cargos</MenuItem>
+                    <MenuItem value="cozinha">Cozinha</MenuItem>
+                    <MenuItem value="atendimento">Atendimento</MenuItem>
+                    <MenuItem value="logistica">Logística</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <FormControl fullWidth>
+                  <InputLabel>Disponibilidade</InputLabel>
+
+                  <Select label="Disponibilidade" defaultValue="todos">
+                    <MenuItem value="todos">Todas as disponibilidades</MenuItem>
+                    <MenuItem value="manha">Manhã</MenuItem>
+                    <MenuItem value="tarde">Tarde</MenuItem>
+                    <MenuItem value="noite">Noite</MenuItem>
+                  </Select>
+                </FormControl>
+            </Stack>
+          </Paper>
+
+          <TableContainer component={Paper} elevation={1} className='rounded-xl border border-gray-200'>
+          <Table aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell align="left">Email</TableCell>
+                <TableCell align="left">Telefone</TableCell>
+                <TableCell align="left">Cargo</TableCell>
+                <TableCell align="left">Disponibilidade</TableCell>
+                <TableCell align="left">Status</TableCell>
+                <TableCell align="left">Data de Incrição</TableCell>
+                <TableCell align="left">Ações</TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {volunteers.map((volunteer) => (
+                <TableRow
+                  key={volunteer.id}
+                >
+                  <TableCell component="th" scope="row">
+                    {volunteer.email}
+                  </TableCell>
+                  <TableCell align="right">{volunteer.telefone}</TableCell>
+                  <TableCell align="right">{volunteer.cargo}</TableCell>
+                  <TableCell align="right">{volunteer.disponibilidade}</TableCell>
+                  <TableCell align="right">{volunteer.status}</TableCell>
+                  <TableCell align="right">{volunteer.data}</TableCell>
+                  <TableCell align="right">
+                    <Button variant="outlined" size="small">
+                      Editar
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          </TableContainer>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default VolunteersList
