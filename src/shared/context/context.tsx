@@ -1,8 +1,8 @@
 import { createContext, useState, type ReactNode } from "react";
 
 interface IContext {
-  listaCargos: string[];
-  listaDisponibilidade: string[];
+  listPosition: string[];
+  listAvailability: string[];
 }
 
 interface AppProvideProps {
@@ -10,14 +10,14 @@ interface AppProvideProps {
 }
 
 const inicial: IContext = {
-  listaCargos: [
+  listPosition: [
     "Cozinha",
     "Atendimento",
     "Logistica",
     "Administrativo",
   ],
 
-  listaDisponibilidade: [
+  listAvailability: [
     "Manhã",
     "Tarde",
     "Noite"
@@ -29,7 +29,7 @@ export const AppContext = createContext<IContext>(inicial);
 export const AppProvider = ({ children }: AppProvideProps) => {
 
   return (
-    <AppContext.Provider value={{listaCargos: inicial.listaCargos, listaDisponibilidade: inicial.listaDisponibilidade}}
+    <AppContext.Provider value={{listPosition: inicial.listPosition, listAvailability: inicial.listAvailability}}
     >
       {children}
     </AppContext.Provider>

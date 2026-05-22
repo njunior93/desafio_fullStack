@@ -1,70 +1,21 @@
+import { useContext, useState } from 'react';
 import Paper from '@mui/material/Paper';
-import { Button, FormControl, InputAdornment, InputLabel, MenuItem, Select, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Button, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, Select, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { useNavigate } from 'react-router-dom';
+import { useVolunteers } from '../hooks/useVolunteers';
+import { AppContext } from '../shared/context/context';
 
 const VolunteersList = () => {
   const navigate = useNavigate();
-
-  const volunteers = [
-  {
-    id: 1,
-    email: "ana.silva@email.com",
-    telefone: "(11) 98765-4321",
-    cargo: "Cozinha",
-    disponibilidade: "Manhã",
-    status: "Inativo",
-    data: "14/01/2024",
-  },
-  {
-    id: 2,
-    email: "carlos.santos@email.com",
-    telefone: "(11) 97654-3210",
-    cargo: "Atendimento",
-    disponibilidade: "Tarde",
-    status: "Ativo",
-    data: "19/01/2024",
-  },
-  {
-    id: 3,
-    email: "maria.oliveira@email.com",
-    telefone: "(11) 96543-2109",
-    cargo: "Logística",
-    disponibilidade: "Noite",
-    status: "Inativo",
-    data: "09/01/2024",
-  },
-  {
-    id: 4,
-    email: "joao.pereira@email.com",
-    telefone: "(11) 95432-1098",
-    cargo: "Administrativo",
-    disponibilidade: "Fim de Semana",
-    status: "Ativo",
-    data: "31/01/2024",
-  },
-  {
-    id: 5,
-    email: "fernanda.costa@email.com",
-    telefone: "(11) 94321-0987",
-    cargo: "Cozinha",
-    disponibilidade: "Manhã",
-    status: "Ativo",
-    data: "04/02/2024",
-  },
-];
-
- const createData = (id: number, email: string, telefone: string, cargo: string, disponibilidade: string, status: string, data: string) => {
-    return { id, email, telefone, cargo, disponibilidade, status, data };
- };
-
- const rows = [
-  createData(1, "email.com", "(11) 98765-4321", "Cozinha", "Manhã", "Inativo", "14/01/2024"),
-  createData(2, "email.com", "(11) 97654-3210", "Atendimento", "Tarde", "Ativo", "19/01/2024"),
-  createData(3, "email.com", "(11) 96543-2109", "Logística", "Noite", "Inativo", "09/01/2024"),
-  createData(4, "email.com", "(11) 95432-1098", "Administrativo", "Fim de Semana", "Ativo", "31/01/2024"),
-  createData(5, "email.com", "(11) 94321-0987", "Cozinha", "Manhã", "Ativo", "04/02/2024"),
- ]
-
+  const {volunteers, isLoading} = useVolunteers();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('todos');
+  const [positionFilter, setPositionFilter] = useState('todos');
+  const [availabilityFilter, setAvailabilityFilter] = useState('todos');
+  const {listPosition} = useContext(AppContext);
+  const {listAvailability} = useContext(AppContext);
 
   return (
     <div className='min-h-screen w-full flex justify-center items-center'>
@@ -95,6 +46,8 @@ const VolunteersList = () => {
               <TextField
                   fullWidth
                   placeholder="Buscar por nome ou email"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -109,7 +62,11 @@ const VolunteersList = () => {
                 <FormControl fullWidth>
                   <InputLabel>Status</InputLabel>
 
-                  <Select label="Status" defaultValue="todos">
+                  <Select
+                    label="Status"
+                    value={statusFilter}
+                    onChange={(event) => setStatusFilter(event.target.value)}
+                  >
                     <MenuItem value="todos">Todos os status</MenuItem>
                     <MenuItem value="ativo">Ativo</MenuItem>
                     <MenuItem value="inativo">Inativo</MenuItem>
@@ -119,22 +76,32 @@ const VolunteersList = () => {
                 <FormControl fullWidth>
                   <InputLabel>Cargo</InputLabel>
 
-                  <Select label="Cargo" defaultValue="todos">
-                    <MenuItem value="todos">Todos os cargos</MenuItem>
-                    <MenuItem value="cozinha">Cozinha</MenuItem>
-                    <MenuItem value="atendimento">Atendimento</MenuItem>
-                    <MenuItem value="logistica">Logística</MenuItem>
+                  <Select
+                    label="Cargo"
+                    value={positionFilter}
+                    onChange={(event) => setPositionFilter(event.target.value)}
+                  >
+                    <MenuItem value={"todos"}>Todos os cargos</MenuItem>
+
+                    {listPosition.map((position) => (
+                      <MenuItem value={position}>{position}</MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
 
                 <FormControl fullWidth>
                   <InputLabel>Disponibilidade</InputLabel>
 
-                  <Select label="Disponibilidade" defaultValue="todos">
-                    <MenuItem value="todos">Todas as disponibilidades</MenuItem>
-                    <MenuItem value="manha">Manhã</MenuItem>
-                    <MenuItem value="tarde">Tarde</MenuItem>
-                    <MenuItem value="noite">Noite</MenuItem>
+                  <Select
+                    label="Disponibilidade"
+                    value={availabilityFilter}
+                    onChange={(event) => setAvailabilityFilter(event.target.value)}
+                  >
+                     <MenuItem value={"todos"}>Todas as disponibilidades</MenuItem>
+
+                    {listAvailability.map((position) => (
+                      <MenuItem value={position}>{position}</MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
             </Stack>
@@ -155,25 +122,60 @@ const VolunteersList = () => {
             </TableHead>
 
             <TableBody>
-              {volunteers.map((volunteer) => (
+
+            {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6}>
+                    <div className='min-h-[200px] w-full flex justify-center items-center'>
+                      <Typography variant='h6' color='text.primary'>
+                        Carregando...
+                      </Typography>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (    
+              volunteers.filter((volunteer) =>{
+                if (!searchTerm && !statusFilter && !positionFilter && !availabilityFilter) {
+                  return true;
+                }
+
+                const filterTerm = volunteer.name?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()) || volunteer.email?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
+                const filterStatus = statusFilter === "todos" ? true : statusFilter === "ativo" ? volunteer.status === true : volunteer.status === false
+                const filterPosition = positionFilter === "todos" ? true : volunteer.position?.toLocaleLowerCase().includes(positionFilter.toLocaleLowerCase())
+                const filterAvali = availabilityFilter === "todos" ? true : volunteer.availability?.toLowerCase().includes(availabilityFilter.toLocaleLowerCase())
+
+                return filterTerm && filterStatus && filterPosition && filterAvali
+
+              }).map((volunteer) => (
                 <TableRow
                   key={volunteer.id}
                 >
                   <TableCell component="th" scope="row">
                     {volunteer.email}
                   </TableCell>
-                  <TableCell align="right">{volunteer.telefone}</TableCell>
-                  <TableCell align="right">{volunteer.cargo}</TableCell>
-                  <TableCell align="right">{volunteer.disponibilidade}</TableCell>
-                  <TableCell align="right">{volunteer.status}</TableCell>
-                  <TableCell align="right">{volunteer.data}</TableCell>
+                  <TableCell align="right">{volunteer.fone}</TableCell>
+                  <TableCell align="right">{volunteer.position}</TableCell>
+                  <TableCell align="right">{volunteer.availability}</TableCell>
+                  <TableCell  align="right" sx={{
+                      bgcolor: volunteer.status ? 'success.main' : 'grey.300',
+                      color: volunteer.status ? 'common.white' : 'text.secondary',
+                    }}
+                  >
+                    {volunteer.status ? "Ativo" : "Inativo"}
+                  </TableCell>
+                  <TableCell align="right">{new Date(volunteer.data_inscricao + "Z").toLocaleDateString("pt-BR")}</TableCell>
                   <TableCell align="right">
-                    <Button variant="outlined" size="small">
-                      Editar
-                    </Button>
+                    <Stack direction="row" spacing={1} justifyContent="flex-end">
+                      <IconButton size="small">
+                        <EditOutlinedIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton size="small">
+                        <CloseOutlinedIcon fontSize="small" />
+                      </IconButton>
+                    </Stack>
                   </TableCell>
                 </TableRow>
-              ))}
+              )))}
             </TableBody>
           </Table>
           </TableContainer>

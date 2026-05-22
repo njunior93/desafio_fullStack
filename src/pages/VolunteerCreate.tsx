@@ -1,17 +1,35 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Button, MenuItem, Paper, TextField, Typography } from '@mui/material';
+import { Box, Button, MenuItem, Paper, TextField, Typography } from '@mui/material';
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useContext, type CSSProperties } from "react";
+import { useContext, useEffect, useState, type CSSProperties } from "react";
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../shared/context/context';
+import type { ICreateVolunteerInput } from './interfaces/ICreateVolunteerInput';
+import { useVolunteers } from '../hooks/useVolunteers';
+import React from 'react';
+import alertMessage from '../shared/components/alertMessage';
+import ReportProblemIcon from "@mui/icons-material/ReportProblem";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 
 const VolunteerCreate = () => {
     const navigate = useNavigate();
-    const {listaCargos} = useContext(AppContext);
-    const {listaDisponibilidade} = useContext(AppContext)
+    const [alert, setAlert] = useState<React.ReactNode | null>(null);
+    const {listPosition} = useContext(AppContext);
+    const {listAvailability} = useContext(AppContext)
+    const {createVolunteer, isCreating} = useVolunteers();
+
+    useEffect(() => {
+    if (!alert) return;
+
+    const timer = setTimeout(() => {
+      setAlert(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [alert]);
 
     const style: CSSProperties = {
         width: "100%",
@@ -22,39 +40,49 @@ const VolunteerCreate = () => {
     };
 
     const schema = yup.object({
-        nome: yup.string().required("O nome é obrigatório"),
+        name: yup.string().required("O nome é obrigatório"),
         email: yup.string().email("Email inválido").required("O email é obrigatório"),
-        telefone: yup.string().test("telefone-valido", "Formato: (99) 9999-9999", (value) => {if (!value) return true; return /^\(\d{2}\)\s\d{4}-\d{4}$/.test(value);}).required(),
-        cargo: yup.string().required("O celular é obrigatório"),
-        disponibilidade: yup.string().required("Disponibilidade é obrigatorio")
+        fone: yup.string().test("telefone-valido", "Formato: (99) 99999-9999", (value) => {if (!value) return true; return /^\(\d{2}\)\s\d{5}-\d{4}$/.test(value);}).required(),
+        position: yup.string().required("O celular é obrigatório"),
+        availability: yup.string().required("Disponibilidade é obrigatorio")
     })
 
-    interface formularioData {
-        email: string
-        nome: string
-        telefone: string
-        cargo: string
-        disponibilidade: string
-    }
+    const {register,handleSubmit,reset, control,formState: { errors },} = useForm<ICreateVolunteerInput>({ resolver: yupResolver(schema) });
 
+    const formatTel = (number: string): string => {
+        const value = number.replace(/\D/g, "");
 
-    const {register,handleSubmit,reset, control,formState: { errors },} = useForm<formularioData>({ resolver: yupResolver(schema) });
-
-    const formatarTel = (numero: string): string => {
-        const valor = numero.replace(/\D/g, "");
-
-        return valor.replace(/^(\d{2})(\d)/g, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
+        return value.replace(/^(\d{2})(\d)/g, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
     };
 
-    const voltarTela = () =>{
-        navigate("/")
+    const fetchVolunteerCreate = async (data: ICreateVolunteerInput) =>{
+        const newVolunteer = {
+            name: data.name,
+            email: data.email,
+            fone: data.fone,
+            position: data.position,
+            availability: data.availability
+        }
+
+        try{
+            await createVolunteer(newVolunteer)
+            setAlert(alertMessage("Agendamento criado com sucesso!","success",<CheckCircleIcon />))
+            reset();
+
+        }catch(error:any){
+            if(error.response?.status === 409){
+                setAlert(alertMessage("Este e-mail já está cadastrado no sistema!","error",<ReportProblemIcon />))
+            }else{
+                setAlert(alertMessage("Erro ao cadastrar voluntário!","error",<ReportProblemIcon />))
+            }
+        }
     }
 
     return(
         <div className="min-h-screen w-full flex justify-center items-center">
             <div className='w-full max-w-4xl flex flex-col gap-4'>
                         <div className='w-full flex justify-start'>
-                            <Button  onClick={() => voltarTela()} sx={{p: 0,minWidth: 0, margin: 0}} startIcon={<ArrowBackIcon />}></Button>
+                            <Button  onClick={() => navigate("/")} sx={{p: 0,minWidth: 0, margin: 0}} startIcon={<ArrowBackIcon />}></Button>
                             <p>Voltar para lista</p>
                         </div>
 
@@ -64,14 +92,14 @@ const VolunteerCreate = () => {
                                 <Typography variant='body2' color='text.secondary'>Preencha os dados para cadastrar um novo voluntário</Typography>                     
                             </div>
 
-                            <form style={style}className="flex flex-col">
+                            <form style={style} className="flex flex-col" onSubmit={handleSubmit(fetchVolunteerCreate)}>
                                 <div className="flex flex flex-col sm:flex-row gap-4 w-full">
                                     <TextField
                                         label="Nome"
                                         required
-                                        {...register("nome")}
-                                        error={!!errors.nome}
-                                        helperText={errors.nome?.message}
+                                        {...register("name")}
+                                        error={!!errors.name}
+                                        helperText={errors.name?.message}
                                         fullWidth
                                         placeholder='Nome Completo'
                                         sx={{
@@ -103,11 +131,11 @@ const VolunteerCreate = () => {
                                         fullWidth
                                         required
                                         placeholder="(99) 9999-9999"
-                                        {...register("telefone")}
-                                        error={!!errors.telefone}
-                                        helperText={errors.telefone?.message}
+                                        {...register("fone")}
+                                        error={!!errors.fone}
+                                        helperText={errors.fone?.message}
                                         onChange={(e) => {
-                                            e.target.value = formatarTel(e.target.value);
+                                            e.target.value = formatTel(e.target.value);
                                         }}
                                         sx={{
                                             "& .MuiOutlinedInput-root": {
@@ -117,7 +145,7 @@ const VolunteerCreate = () => {
                                     />
 
                                     <Controller
-                                        name="cargo"
+                                        name="position"
                                         control={control}
                                         defaultValue=""
                                         render={({ field }) => (
@@ -126,18 +154,17 @@ const VolunteerCreate = () => {
                                                 required
                                                 label="Cargo"
                                                 fullWidth
-                                                defaultValue="cozinha"
                                                 {...field}
-                                                error={!!errors.cargo}
-                                                helperText={errors.cargo?.message}
+                                                error={!!errors.position}
+                                                helperText={errors.position?.message}
                                                 sx={{
                                                     "& .MuiOutlinedInput-root": {
                                                         borderRadius: "12px",
                                                     },
                                                 }}
                                                 >
-                                                {listaCargos.map((cargo) => (
-                                                        <MenuItem key={cargo} value={cargo}>{cargo}</MenuItem>
+                                                {listPosition.map((position) => (
+                                                        <MenuItem key={position} value={position}>{position}</MenuItem>
                                                     ))}
                                             </TextField>
                                         )}
@@ -147,7 +174,8 @@ const VolunteerCreate = () => {
                                 <div className="flex flex flex-col sm:flex-row w-full gap-4">
                                     <div className='sm:w-1/2 w-full'>
                                         <Controller
-                                        name="disponibilidade"                                     
+                                        name="availability" 
+                                        defaultValue=""                                    
                                         control={control}
                                         render={({ field }) => (
                                             <TextField
@@ -156,16 +184,16 @@ const VolunteerCreate = () => {
                                                 label="Disponibilidade"
                                                 fullWidth
                                                 {...field}
-                                                error={!!errors.disponibilidade}
+                                                error={!!errors.availability}
                                                 sx={{
                                                     "& .MuiOutlinedInput-root": {
                                                         borderRadius: "12px",
                                                     },
                                                 }}
-                                                helperText={errors.disponibilidade?.message}
+                                                helperText={errors.availability?.message}
                                                 >
-                                                    {listaDisponibilidade.map((turno) => (
-                                                        <MenuItem key={turno} value={turno}>{turno}</MenuItem>
+                                                    {listAvailability.map((availability) => (
+                                                        <MenuItem key={availability} value={availability}>{availability}</MenuItem>
                                                     ))} 
                                             </TextField>
                                         )}
@@ -177,6 +205,7 @@ const VolunteerCreate = () => {
                                 <Button
                                     variant="outlined"
                                     color="inherit"
+                                    onClick={() => reset()}
                                     sx={{
                                         borderRadius: 3,
                                         textTransform: "none",
@@ -188,6 +217,7 @@ const VolunteerCreate = () => {
 
                                 <Button
                                     variant="contained"
+                                    type='submit'
                                     sx={{
                                         borderRadius: 3,
                                         textTransform: "none",
@@ -200,6 +230,21 @@ const VolunteerCreate = () => {
                             </form>
                         </Paper>
             </div>
+
+            {alert && (
+                <Box
+                sx={{
+                    position: "fixed",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    zIndex: 1301,
+                    pointerEvents: "none",
+                }}
+                >
+                {alert}
+                </Box>
+            )}
         </div>
     )
 
