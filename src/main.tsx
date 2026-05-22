@@ -5,6 +5,7 @@ import App from './App.tsx'
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import VolunteerCreate from './pages/VolunteerCreate.tsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import VolunteerEdit from './pages/VolunteerEdit.tsx';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path:"/create-volunteer",
     element: <VolunteerCreate/>
+  },
+  {
+    path:"/edit-volunteer/:id",
+    element: <VolunteerEdit/>
   },
 ])
 

@@ -1,11 +1,14 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Paper from '@mui/material/Paper';
-import { Button, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, Select, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Box, Button, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, Select, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useVolunteers } from '../hooks/useVolunteers';
 import { AppContext } from '../shared/context/context';
+import alertMessage from '../shared/components/alertMessage';
+import ReportProblemIcon from "@mui/icons-material/ReportProblem";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const VolunteersList = () => {
   const navigate = useNavigate();
@@ -16,8 +19,45 @@ const VolunteersList = () => {
   const [availabilityFilter, setAvailabilityFilter] = useState('todos');
   const {listPosition} = useContext(AppContext);
   const {listAvailability} = useContext(AppContext);
+  const [alert, setAlert] = useState<React.ReactNode | null>(null);
+
+  interface NavigationState {
+    feedbackMessage?: string;
+    feedbackType?: 'success' | 'error';
+  }
+
+  const location = useLocation();
+  const state = location.state as NavigationState;
+
+  useEffect(() => {
+    if (location.state?.feedbackMessage) {
+      const type = location.state.feedbackType;
+      const message = location.state.feedbackMessage;
+
+      setAlert(
+        alertMessage(
+          message, 
+          type, 
+          type === "success" ? <CheckCircleIcon /> : <ReportProblemIcon />
+        )
+      );
+
+      window.history.replaceState({}, document.title);
+
+      const timer = setTimeout(() => {
+        setAlert(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [location]);
+
+    const pageEditVolunteer = (id:number) =>{
+      navigate(`/edit-volunteer/${id}`);
+  }
 
   return (
+    <>
     <div className='min-h-screen w-full flex justify-center items-center'>
       <div className='w-full max-w-4xl flex flex-col gap-8 m-4'>
         <div className='w-full flex flex-row justify-between items-center'>
@@ -166,8 +206,8 @@ const VolunteersList = () => {
                   <TableCell align="right">{new Date(volunteer.data_inscricao + "Z").toLocaleDateString("pt-BR")}</TableCell>
                   <TableCell align="right">
                     <Stack direction="row" spacing={1} justifyContent="flex-end">
-                      <IconButton size="small">
-                        <EditOutlinedIcon fontSize="small" />
+                      <IconButton onClick={() => pageEditVolunteer(volunteer.id)} size="small">
+                        <EditOutlinedIcon  fontSize="small" />
                       </IconButton>
                       <IconButton size="small">
                         <CloseOutlinedIcon fontSize="small" />
@@ -181,7 +221,23 @@ const VolunteersList = () => {
           </TableContainer>
         </div>
       </div>
-    </div>
+
+      {alert  && (
+        <Box
+                    sx={{
+                        position: "fixed",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        zIndex: 1301,
+                        pointerEvents: "none",
+                    }}
+                    >
+                    {alert}
+                    </Box>
+                )}
+    </div>   
+    </>
   )
 }
 
