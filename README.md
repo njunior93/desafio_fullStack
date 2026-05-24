@@ -1,6 +1,4 @@
 # 📅 Sistema de Gerenciamento de Voluntários
-
-Teste FullStack Junior (Projeto: FrontEnd Fusion)
 ---
 
 # 🧰 Tecnologias Utilizadas
