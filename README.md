@@ -1,9 +1,9 @@
-# Sistema de Gerenciamento de Voluntários
+# 📅 Sistema de Gerenciamento de Voluntários
 
 Teste FullStack Junior (Projeto: FrontEnd Fusion)
 ---
 
-# Tecnologias Utilizadas
+# 🧰 Tecnologias Utilizadas
 
 ## Frontend
 
@@ -23,7 +23,7 @@ Teste FullStack Junior (Projeto: FrontEnd Fusion)
 
 ---
 
-# Funcionalidades
+# 🛠 Funcionalidades
 
 - Cadastro de voluntários
 - Listagem de voluntários
@@ -42,7 +42,7 @@ Teste FullStack Junior (Projeto: FrontEnd Fusion)
 ---
 
 
-# Como Rodar o Projeto
+# ✏️ Como Rodar o Projeto
 
 ## Backend
 
@@ -98,7 +98,7 @@ VITE_API_URL=http://localhost:8000
 
 ---
 
-# Decisões Técnicas
+# ⚡ Decisões Técnicas
 
 ## React Query
 
