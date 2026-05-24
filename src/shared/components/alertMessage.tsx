@@ -23,7 +23,8 @@ const alertMessage = (
           fontSize: "1.2rem",
           display: "block",
           textAlign: "center",
-        }}>
+        }}
+      >
         {mensagem}
       </Box>
     </Alert>

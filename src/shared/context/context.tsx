@@ -4,10 +4,10 @@ interface IContext {
   listPosition: string[];
   listAvailability: string[];
   openModal: false | true;
-  setOpenModal: (open: false | true) => void
+  setOpenModal: (open: false | true) => void;
   selectedId: number | null;
   setSelectedId: (id: number | null) => void;
-  alertEdit: "sucess" | "error" | null
+  alertEdit: "sucess" | "error" | null;
   setAlertEdit: (alert: "sucess" | "error" | null) => void;
 }
 
@@ -16,25 +16,15 @@ interface AppProvideProps {
 }
 
 const inicial: IContext = {
-  listPosition: [
-    "Cozinha",
-    "Atendimento",
-    "Logistica",
-    "Administrativo",
-  ],
+  listPosition: ["Cozinha", "Atendimento", "Logistica", "Administrativo"],
 
-  listAvailability: [
-    "Manhã",
-    "Tarde",
-    "Noite"
-  ],
+  listAvailability: ["Manhã", "Tarde", "Noite"],
   setOpenModal: () => {},
   openModal: false,
-  setSelectedId: () =>{},
+  setSelectedId: () => {},
   selectedId: null,
   alertEdit: null,
-  setAlertEdit: () =>{}
-
+  setAlertEdit: () => {},
 };
 
 export const AppContext = createContext<IContext>(inicial);
@@ -42,10 +32,20 @@ export const AppContext = createContext<IContext>(inicial);
 export const AppProvider = ({ children }: AppProvideProps) => {
   const [openModal, setOpenModal] = useState<false | true>(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [alertEdit, setAlertEdit] = useState<"sucess" | "error" | null>(null)
+  const [alertEdit, setAlertEdit] = useState<"sucess" | "error" | null>(null);
 
   return (
-    <AppContext.Provider value={{alertEdit, setAlertEdit,selectedId, setSelectedId,openModal, setOpenModal,listPosition: inicial.listPosition, listAvailability: inicial.listAvailability}}
+    <AppContext.Provider
+      value={{
+        alertEdit,
+        setAlertEdit,
+        selectedId,
+        setSelectedId,
+        openModal,
+        setOpenModal,
+        listPosition: inicial.listPosition,
+        listAvailability: inicial.listAvailability,
+      }}
     >
       {children}
     </AppContext.Provider>
