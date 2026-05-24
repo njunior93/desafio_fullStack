@@ -12,8 +12,7 @@
 - Axios
 - Material UI
 
-## Backend ([Repositorio]: (https://github.com/njunior93/desafio-FullStack-BackEnd.git))
-
+## Backend ([Repositorio](https://github.com/njunior93/desafio-FullStack-BackEnd.git))
 - FastAPI
 - SQLAlchemy
 - SQLite
