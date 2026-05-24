@@ -1,5 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Button, MenuItem, Paper, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, MenuItem, Paper, TextField, Typography } from '@mui/material';
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -80,9 +80,9 @@ const VolunteerCreate = () => {
 
     return(
         <div className="min-h-screen w-full flex justify-center items-center">
-            <div className='w-full max-w-4xl flex flex-col gap-4'>
+            <div className='w-full max-w-4xl flex flex-col gap-4 p-2'>
                         <div className='w-full flex justify-start'>
-                            <Button  onClick={() => navigate("/")} sx={{p: 0,minWidth: 0, margin: 0}} startIcon={<ArrowBackIcon />}></Button>
+                            <Button disabled={isCreating} onClick={() => navigate("/")} sx={{p: 0,minWidth: 0, margin: 0}} startIcon={<ArrowBackIcon />}></Button>
                             <p>Voltar para lista</p>
                         </div>
 
@@ -97,6 +97,7 @@ const VolunteerCreate = () => {
                                     <TextField
                                         label="Nome"
                                         required
+                                        disabled={isCreating}
                                         {...register("name")}
                                         error={!!errors.name}
                                         helperText={errors.name?.message}
@@ -112,6 +113,7 @@ const VolunteerCreate = () => {
                                     <TextField
                                         label="Email"
                                         required
+                                        disabled={isCreating}
                                         {...register("email")}
                                         error={!!errors.email}
                                         helperText={errors.email?.message}
@@ -130,6 +132,7 @@ const VolunteerCreate = () => {
                                         label="Telefone"
                                         fullWidth
                                         required
+                                        disabled={isCreating}
                                         placeholder="(99) 9999-9999"
                                         {...register("fone")}
                                         error={!!errors.fone}
@@ -152,6 +155,7 @@ const VolunteerCreate = () => {
                                             <TextField
                                                 select
                                                 required
+                                                disabled={isCreating}
                                                 label="Cargo"
                                                 fullWidth
                                                 {...field}
@@ -180,6 +184,7 @@ const VolunteerCreate = () => {
                                         render={({ field }) => (
                                             <TextField
                                                 select
+                                                disabled={isCreating}
                                                 required                
                                                 label="Disponibilidade"
                                                 fullWidth
@@ -205,6 +210,7 @@ const VolunteerCreate = () => {
                                 <Button
                                     variant="outlined"
                                     color="inherit"
+                                    disabled={isCreating}
                                     onClick={() => reset()}
                                     sx={{
                                         borderRadius: 3,
@@ -217,6 +223,7 @@ const VolunteerCreate = () => {
 
                                 <Button
                                     variant="contained"
+                                    disabled={isCreating}
                                     type='submit'
                                     sx={{
                                         borderRadius: 3,
@@ -224,7 +231,11 @@ const VolunteerCreate = () => {
                                         px: 3,
                                         py: 1.2,
                                     }}>
-                                Cadastrar Voluntário
+                                {isCreating ? (
+                                                                            <CircularProgress size={24} color="inherit" />
+                                                                            ) : (
+                                                                            "Cadastrar Voluntário"
+                                                                            )}
                                 </Button>
                                 </div>
                             </form>

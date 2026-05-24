@@ -1,8 +1,8 @@
 import { apiClient } from './apiClient';
 import type { ICreateVolunteerInput } from '../pages/interfaces/ICreateVolunteerInput';
-import type { IlistVolunteerOutput } from '../pages/interfaces/IListVolunteerOutput';
 import type { IUpdateVolunteer } from '../pages/interfaces/IUpdateVolunteer';
 import type { IVolunteer } from '../pages/interfaces/IVolunteer';
+import type { IVolunteerPageOutput } from '../pages/interfaces/IVolunteerPageOutput';
 
 
 export const createVolunteerApi = async (data: ICreateVolunteerInput) => {
@@ -10,8 +10,8 @@ export const createVolunteerApi = async (data: ICreateVolunteerInput) => {
   return response.data;
 };
 
-export const getVolunteersApi = async (): Promise<IlistVolunteerOutput[]> => {
-  const response = await apiClient.get('/volunteer-list');
+export const getVolunteersApi = async (page: number): Promise<IVolunteerPageOutput> => {
+  const response = await apiClient.get(`/volunteer-list?page=${page}&limit=5`);
   return response.data;
 };
 
@@ -21,7 +21,7 @@ export const updateVolunteerApi = async ({ id, data }: { id: number; data: IUpda
 };
 
 export const delVolunteerApi = async ({ id }: { id: number}) => {
-  const response = await apiClient.put(`/volunteer-del/${id}`);
+  const response = await apiClient.delete(`/volunteer-del/${id}`);
   return response.data;
 };
 

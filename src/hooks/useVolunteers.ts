@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createVolunteerApi, getVolunteerByIdApi, getVolunteersApi, updateVolunteerApi, delVolunteerApi } from '../api/volunteers';
+import { useState } from 'react';
+import type { IVolunteerPageOutput } from '../pages/interfaces/IVolunteerPageOutput';
 
  export function useVolunteerById(id: number | null) {
     return useQuery({
@@ -11,11 +13,15 @@ import { createVolunteerApi, getVolunteerByIdApi, getVolunteersApi, updateVolunt
 
 export function useVolunteers() {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
 
-  const { data: volunteers = [], isLoading, error: queryError } = useQuery({
-    queryKey: ['volunteers'],
-    queryFn: getVolunteersApi,
+
+  const { data: paginationData, isLoading, error: queryError } = useQuery<IVolunteerPageOutput>({
+  queryKey: ['volunteers', page],
+  queryFn: () => getVolunteersApi(page),
   });
+
+  const volunteers = paginationData?.items ?? [];
 
   const createMutation = useMutation({
     mutationFn: createVolunteerApi,
@@ -42,6 +48,7 @@ export function useVolunteers() {
     volunteers,
     isLoading,
     queryError,
+    deleteMutation,
     createVolunteer: createMutation.mutateAsync,
     isCreating: createMutation.isPending,
     createError: createMutation.error,
@@ -50,6 +57,9 @@ export function useVolunteers() {
     updateError: updateMutation.error,
     delVolunteerApi: deleteMutation.mutateAsync,
     isDeleting: deleteMutation.isPending,
-    deleteError: deleteMutation.error
+    deleteError: deleteMutation.error,
+    total: paginationData?.total || 0,
+    page,
+    setPage
   };
 }

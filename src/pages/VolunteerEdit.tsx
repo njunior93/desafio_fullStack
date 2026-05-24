@@ -1,5 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Button, MenuItem, Paper, TextField, Typography, CircularProgress } from '@mui/material';
+import { Box, Button, MenuItem, Paper, TextField, Typography, CircularProgress, Stack, FormControlLabel } from '@mui/material';
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useContext, useEffect, useState, type CSSProperties } from "react";
@@ -14,11 +14,12 @@ import { useVolunteerById } from "../../src/hooks/useVolunteers";
 import { useParams } from 'react-router-dom';
 import alertMessage from '../shared/components/alertMessage';
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
+import Switch from '@mui/material/Switch';
 
 
 const VolunteerEdit = () => {
     const navigate = useNavigate();
-    const {updateVolunteer, isUpdating} = useVolunteers();
+    const {updateVolunteer, isUpdating, isLoading, isDeleting} = useVolunteers();
     const { id } = useParams<{ id: string }>(); 
     const volunteerId = id ? Number(id) : null;
     const [alert, setAlert] = useState<React.ReactNode | null>(null);
@@ -26,6 +27,16 @@ const VolunteerEdit = () => {
     const {listAvailability} = useContext(AppContext);
     const {setAlertEdit} = useContext(AppContext);
     const { data: volunteerData, isLoading: isLoadingVolunteer } = useVolunteerById(volunteerId);
+
+    useEffect(() => {
+        if (!alert) return;
+    
+        const timer = setTimeout(() => {
+          setAlert(null);
+        }, 3000);
+    
+        return () => clearTimeout(timer);
+      }, [alert]);
 
     const style: CSSProperties = {
         width: "100%",
@@ -40,10 +51,11 @@ const VolunteerEdit = () => {
         email: yup.string().email("Email inválido").required("O email é obrigatório"),
         fone: yup.string().test("telefone-valido", "Formato: (99) 99999-9999", (value) => {if (!value) return true; return /^\(\d{2}\)\s\d{5}-\d{4}$/.test(value);}).required(),
         position: yup.string().required("O celular é obrigatório"),
-        availability: yup.string().required("Disponibilidade é obrigatorio")
+        availability: yup.string().required("Disponibilidade é obrigatorio"),
+        status: yup.boolean().required("O status é obrigatório")
     })
 
-    const {register,handleSubmit,reset, control,formState: { errors },} = useForm<ICreateVolunteerInput>({ resolver: yupResolver(schema) });
+    const {register,handleSubmit,reset, control,formState: { errors },} = useForm<IUpdateVolunteer>({ resolver: yupResolver(schema) });
 
     useEffect(() =>{
         if(volunteerData){
@@ -52,7 +64,8 @@ const VolunteerEdit = () => {
             email: volunteerData.email,
             fone: volunteerData.fone,
             position: volunteerData.position,
-            availability: volunteerData.availability
+            availability: volunteerData.availability,
+            status: volunteerData.status
           })
         }
     },[volunteerData, reset])
@@ -65,15 +78,21 @@ const VolunteerEdit = () => {
                 email: data.email,
                 fone: data.fone,
                 position: data.position,
-                availability: data.availability
-            }
+                availability: data.availability,
+                status: data.status
+        }
     
             try{
                 await updateVolunteer({id: Number(volunteerId),data:newVolunteer})
-                navigate("/", { state: { feedbackMessage: "Edição feita com sucesso!", feedbackType: "success" } });
+                navigate("/", { state: { feedbackMessage: "Atualização feita com sucesso!", feedbackType: "success" } });
             }catch(error:any){
-                setAlert(alertMessage("Erro ao tentar atualizar voluntário!", "error", <ReportProblemIcon />));
-  }    }
+                if(error.response?.status === 422){
+                    setAlert(alertMessage("Informe o email válido!", "error", <ReportProblemIcon />));
+                } else {
+                    setAlert(alertMessage("Erro ao tentar atualizar voluntário!", "error", <ReportProblemIcon />));
+                }
+            }
+    }
 
     const formatTel = (number: string): string => {
         const value = number.replace(/\D/g, "");
@@ -83,7 +102,7 @@ const VolunteerEdit = () => {
 
     return(
         <div className="min-h-screen w-full flex justify-center items-center">
-            <div className='w-full max-w-4xl flex flex-col gap-4'>
+            <div className='w-full max-w-4xl flex flex-col gap-4 p-2'>
                         <div className='w-full flex justify-start'>
                             <Button disabled={isUpdating} onClick={() => navigate("/")} sx={{p: 0,minWidth: 0, margin: 0}} startIcon={<ArrowBackIcon />}></Button>
                             <p>Voltar para lista</p>
@@ -104,49 +123,15 @@ const VolunteerEdit = () => {
                                 ) : (
                                     <>
                                         <div className="flex flex flex-col sm:flex-row gap-4 w-full">
-                                        <TextField
-                                            label="Nome"
-                                            required
-                                            {...register("name")}
-                                            error={!!errors.name}
-                                            helperText={errors.name?.message}
-                                            fullWidth
-                                            placeholder='Nome Completo'
-                                            sx={{
-                                                "& .MuiOutlinedInput-root": {
-                                                    borderRadius: "12px",
-                                                },
-                                            }}
-                                        />
-
-                                        <TextField
-                                            label="Email"
-                                            required
-                                            {...register("email")}
-                                            error={!!errors.email}
-                                            helperText={errors.email?.message}
-                                            fullWidth
-                                            placeholder='email@exemplo.com'
-                                            sx={{
-                                                "& .MuiOutlinedInput-root": {
-                                                    borderRadius: "12px",
-                                                },
-                                            }}
-                                        />
-                                        </div>
-
-                                        <div className="flex flex flex-col sm:flex-row w-full gap-4">
                                             <TextField
-                                                label="Telefone"
-                                                fullWidth
+                                                label="Nome"
                                                 required
-                                                placeholder="(99) 9999-9999"
-                                                {...register("fone")}
-                                                error={!!errors.fone}
-                                                helperText={errors.fone?.message}
-                                                onChange={(e) => {
-                                                    e.target.value = formatTel(e.target.value);
-                                                }}
+                                                disabled={isUpdating}
+                                                {...register("name")}
+                                                error={!!errors.name}
+                                                helperText={errors.name?.message}
+                                                fullWidth
+                                                placeholder='Nome Completo'
                                                 sx={{
                                                     "& .MuiOutlinedInput-root": {
                                                         borderRadius: "12px",
@@ -154,64 +139,128 @@ const VolunteerEdit = () => {
                                                 }}
                                             />
 
-                                            <Controller
-                                                name="position"
-                                                control={control}
-                                                defaultValue=""
-                                                render={({ field }) => (
-                                                    <TextField
-                                                        select
-                                                        required
-                                                        label="Cargo"
-                                                        fullWidth
-                                                        {...field}
-                                                        error={!!errors.position}
-                                                        helperText={errors.position?.message}
-                                                        sx={{
-                                                            "& .MuiOutlinedInput-root": {
-                                                                borderRadius: "12px",
-                                                            },
-                                                        }}
-                                                        >
-                                                        {listPosition.map((position) => (
-                                                                <MenuItem key={position} value={position}>{position}</MenuItem>
-                                                            ))}
-                                                    </TextField>
-                                                )}
+                                            <TextField
+                                                label="Email"
+                                                required
+                                                disabled={isUpdating}
+                                                {...register("email")}
+                                                error={!!errors.email}
+                                                helperText={errors.email?.message}
+                                                fullWidth
+                                                placeholder='email@exemplo.com'
+                                                sx={{
+                                                    "& .MuiOutlinedInput-root": {
+                                                        borderRadius: "12px",
+                                                    },
+                                                }}
                                             />
-                                        </div>
+                                            </div>
 
-                                        <div className="flex flex flex-col sm:flex-row w-full gap-4">
-                                            <div className='sm:w-1/2 w-full'>
+                                            <div className="flex flex flex-col sm:flex-row w-full gap-4">
+                                                <TextField
+                                                    disabled={isUpdating}
+                                                    label="Telefone"
+                                                    fullWidth
+                                                    required
+                                                    placeholder="(99) 9999-9999"
+                                                    {...register("fone")}
+                                                    error={!!errors.fone}
+                                                    helperText={errors.fone?.message}
+                                                    onChange={(e) => {
+                                                        e.target.value = formatTel(e.target.value);
+                                                    }}
+                                                    sx={{
+                                                        "& .MuiOutlinedInput-root": {
+                                                            borderRadius: "12px",
+                                                        },
+                                                    }}
+                                                />
+
                                                 <Controller
-                                                name="availability" 
-                                                defaultValue=""                                    
+                                                    name="position"
+                                                    control={control}
+                                                    defaultValue=""
+                                                    render={({ field }) => (
+                                                        <TextField
+                                                            select
+                                                            disabled={isUpdating}
+                                                            required
+                                                            label="Cargo"
+                                                            fullWidth
+                                                            {...field}
+                                                            error={!!errors.position}
+                                                            helperText={errors.position?.message}
+                                                            sx={{
+                                                                "& .MuiOutlinedInput-root": {
+                                                                    borderRadius: "12px",
+                                                                },
+                                                            }}
+                                                            >
+                                                            {listPosition.map((position) => (
+                                                                    <MenuItem key={position} value={position}>{position}</MenuItem>
+                                                                ))}
+                                                        </TextField>
+                                                    )}
+                                                />
+                                            </div>
+
+                                            <div className="flex flex flex-col sm:flex-row w-full gap-4">
+                                                <div className='sm:w-1/2 w-full'>
+                                                    <Controller
+                                                    name="availability" 
+                                                    defaultValue=""                                    
+                                                    control={control}
+                                                    render={({ field }) => (
+                                                        <TextField
+                                                            select
+                                                            disabled={isUpdating}
+                                                            required                
+                                                            label="Disponibilidade"
+                                                            fullWidth
+                                                            {...field}
+                                                            error={!!errors.availability}
+                                                            sx={{
+                                                                "& .MuiOutlinedInput-root": {
+                                                                    borderRadius: "12px",
+                                                                },
+                                                            }}
+                                                            helperText={errors.availability?.message}
+                                                            >
+                                                                {listAvailability.map((availability) => (
+                                                                    <MenuItem key={availability} value={availability}>{availability}</MenuItem>
+                                                                ))} 
+                                                        </TextField>
+                                                    )}
+                                                />
+                                                </div>             
+                                            </div>      
+                                            
+                                            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                                                <Controller
+                                                name="status"
                                                 control={control}
                                                 render={({ field }) => (
-                                                    <TextField
-                                                        select
-                                                        required                
-                                                        label="Disponibilidade"
-                                                        fullWidth
-                                                        {...field}
-                                                        error={!!errors.availability}
-                                                        sx={{
-                                                            "& .MuiOutlinedInput-root": {
-                                                                borderRadius: "12px",
-                                                            },
-                                                        }}
-                                                        helperText={errors.availability?.message}
-                                                        >
-                                                            {listAvailability.map((availability) => (
-                                                                <MenuItem key={availability} value={availability}>{availability}</MenuItem>
-                                                            ))} 
-                                                    </TextField>
+                                                <FormControlLabel
+                                                    control={
+                                                    <Switch
+                                                        checked={!!field.value}
+                                                        onChange={(e) => field.onChange(e.target.checked)}
+                                                        color="success"
+                                                        disabled={isUpdating}
+                                                    />
+                                                    }
+                                                    label={
+                                                    <Typography>
+                                                        Status: <strong>{field.value ? "Ativo" : "Inativo"}</strong>
+                                                    </Typography>
+                                                    }
+                                                />
                                                 )}
                                             />
-                                            </div>             
-                                        </div>      
+                                            </Stack>
 
-                                        <div className="flex justify-end gap-3 pt-4 border-t">
+
+                                            <div className="flex justify-end gap-3 pt-4 border-t">
                                         <Button
                                             variant="outlined"
                                             color="inherit"
@@ -242,6 +291,7 @@ const VolunteerEdit = () => {
                                             "Atualizar Voluntário"
                                             )}
                                         </Button>
+                                        
                                         </div>
                                     </>
                                     
