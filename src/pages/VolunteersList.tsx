@@ -227,12 +227,19 @@ const VolunteersList = () => {
                   <TableCell align="right">{volunteer.fone}</TableCell>
                   <TableCell align="right">{volunteer.position}</TableCell>
                   <TableCell align="right">{volunteer.availability}</TableCell>
-                  <TableCell  align="right" sx={{
-                      bgcolor: volunteer.status ? 'success.main' : 'grey.300',
-                      color: volunteer.status ? 'common.white' : 'text.secondary',
-                    }}
-                  >
-                    {volunteer.status ? "Ativo" : "Inativo"}
+                  <TableCell  align="right">
+                    <span className={`
+                      p-1 
+                      text-xs 
+                      font-semibold 
+                      rounded-full
+                      ${volunteer.status 
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-gray-100 text-gray-600'
+                      }
+                    `}>
+                      {volunteer.status ? "Ativo" : "Inativo"}
+                    </span> 
                   </TableCell>
                   <TableCell align="right">{new Date(volunteer.data_inscricao + "Z").toLocaleDateString("pt-BR")}</TableCell>
                   <TableCell align="right">
