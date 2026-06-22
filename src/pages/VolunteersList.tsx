@@ -47,11 +47,6 @@ const VolunteersList = () => {
   const { listAvailability } = useContext(AppContext);
   const [alert, setAlert] = useState<React.ReactNode | null>(null);
 
-  interface NavigationState {
-    feedbackMessage?: string;
-    feedbackType?: "success" | "error";
-  }
-
   const location = useLocation();
 
   useEffect(() => {

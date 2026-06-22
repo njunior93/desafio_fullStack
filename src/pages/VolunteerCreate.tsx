@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import * as yup from "yup";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useContext, useEffect, useState, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
@@ -69,7 +69,9 @@ const VolunteerCreate = () => {
     reset,
     control,
     formState: { errors },
-  } = useForm<ICreateVolunteerInput>({ resolver: yupResolver(schema) });
+  } = useForm<ICreateVolunteerInput>({
+    resolver: yupResolver(schema) as Resolver<ICreateVolunteerInput>,
+  });
 
   const formatTel = (number: string): string => {
     const value = number.replace(/\D/g, "");

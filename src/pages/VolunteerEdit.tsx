@@ -10,7 +10,7 @@ import {
   Stack,
   FormControlLabel,
 } from "@mui/material";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useContext, useEffect, useState, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
@@ -78,7 +78,9 @@ const VolunteerEdit = () => {
     reset,
     control,
     formState: { errors },
-  } = useForm<IUpdateVolunteer>({ resolver: yupResolver(schema) });
+  } = useForm<IUpdateVolunteer>({
+    resolver: yupResolver(schema) as Resolver<IUpdateVolunteer>,
+  });
 
   useEffect(() => {
     if (volunteerData) {
