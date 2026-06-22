@@ -30,10 +30,6 @@ Aplicação Fullstack para gerenciamento de voluntários desenvolvida com React 
 
 ---
 
-## 🛠 Backend
-
-([📁 Repositório Backend](https://github.com/njunior93/desafio-FullStack-BackEnd.git))
-
 - 🚀 FastAPI
 - 🗃 SQLAlchemy
 - 💾 SQLite
@@ -57,6 +53,11 @@ Aplicação Fullstack para gerenciamento de voluntários desenvolvida com React 
 - 🔔 Feedback visual com toast
 - ⏳ Estados de loading e erro
 
+---
+## 📎 Links
+
+🔗 Backend: [Link para o Back End](https://github.com/njunior93/desafio-FullStack-BackEnd.git)
+🔗 Deploy: [Link para o Deploy da aplicação](https://crud-gerenciamento-voluntarios.vercel.app/)
 ---
 
 # ✏️ Como Rodar o Projeto
